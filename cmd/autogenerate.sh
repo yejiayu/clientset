@@ -6,6 +6,7 @@ set -e
 
 # Add your packages here
 PKGS=(
+  release/v1alpha1
 )
 
 CLIENT_PATH=github.com/caicloud/clientset
