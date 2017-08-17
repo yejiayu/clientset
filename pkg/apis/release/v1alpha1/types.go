@@ -133,3 +133,140 @@ type GrayReleaseList struct {
 	// Items is the list of gray releases
 	Items []GrayRelease `json:"items"`
 }
+
+// ReleaseRollbackConfig describes the rollback config of a release
+type ReleaseRollbackConfig struct {
+	// The version to rollback to. If set to 0, rollbck to the last version.
+	Version int32 `json:"version,omitempty"`
+}
+
+// ReleaseSpec describes the basic info of a release
+type ReleaseSpec struct {
+	// Description is the description of current release
+	Description string
+	// Template is an archived template data
+	Template []byte `json:"template"`
+	// Config is the config for parsing template
+	Config string `json:"config"`
+	// The config this release is rolling back to. Will be cleared after rollback is done.
+	RollbackTo *ReleaseRollbackConfig `json:"rollbackTo,omitempty"`
+}
+
+type ReleaseConditionType string
+
+const (
+	ReleaseAvailable   ReleaseConditionType = "Available"
+	ReleaseProgressing ReleaseConditionType = "Progressing"
+	ReleaseFailure     ReleaseConditionType = "Failure"
+)
+
+// ReleaseHistorySpec describes the history info of a release
+type ReleaseCondition struct {
+	// Type of release condition.
+	Type ReleaseConditionType `json:"type"`
+	// Status of the condition, one of True, False, Unknown.
+	Status apiv1.ConditionStatus `json:"status"`
+	// Last time the condition transit from one status to another.
+	LastTransitionTime metav1.Time `json:"lastTransitionTime,omitempty"`
+	// Reason for the condition's last transition.
+	Reason string `json:"reason,omitempty"`
+	// Human readable message indicating details about last transition.
+	Message string `json:"message,omitempty"`
+}
+
+// ResourceCounter is a status counter
+type ResourceCounter struct {
+	// Running is the count of running target
+	Running int `json:"running"`
+	// Mutating is the count of mutating target
+	Mutating int `json:"mutating"`
+	// Wrong is the count of wrong target
+	Wrong int `json:"wrong"`
+}
+
+// ReleaseDetailStatus
+type ReleaseDetailStatus struct {
+	// Path is the path which resources from
+	Path string
+	// Resources contains a kind-counter map.
+	// A kind should be a unique name of a group resources.
+	Resources map[string]ResourceCounter
+}
+
+// ReleaseStatus describes the status of a release
+type ReleaseStatus struct {
+	// Version is the version of current release
+	Version int32 `json:"version,omitempty"`
+	// Manifest is the generated kubernetes resources from template
+	Manifest string `json:"manifest,omitempty"`
+	// LastUpdateTime is the last update time of current release
+	LastUpdateTime metav1.Time `json:"lastUpdateTime,omitempty"`
+	// Details contains all resources status of current release
+	Details []ReleaseDetailStatus `json:"details,omitempty"`
+	// Conditions is an array of current observed release conditions.
+	Conditions []ReleaseCondition `json:"conditions,omitempty"`
+}
+
+// +genclient=true
+// +genclientstatus=false
+
+// Release describes a release wich chart and values
+type Release struct {
+	metav1.TypeMeta `json:",inline"`
+	// +optional
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	// Specification of the desired behavior of the Release
+	// +optional
+	Spec ReleaseSpec `json:"spec,omitempty"`
+
+	// Most recently observed status of the Release
+	// +optional
+	Status ReleaseStatus `json:"status,omitempty"`
+}
+
+// ReleaseList describes an array of Release instances
+type ReleaseList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+
+	// Items is the list of releases
+	Items []Release `json:"items"`
+}
+
+// ReleaseHistorySpec describes the history info of a release
+type ReleaseHistorySpec struct {
+	// Description is the description of current history
+	Description string `json:"description,omitempty"`
+	// Version is the version of a history
+	Version int32 `json:"version,omitempty"`
+	// Template is an archived template data
+	Template []byte `json:"template,omitempty"`
+	// Config is the config for parsing template
+	Config string `json:"config,omitempty"`
+	// Manifest is the generated kubernetes resources from template
+	Manifest string `json:"manifest,omitempty"`
+}
+
+// +genclient=true
+// +genclientstatus=false
+
+// ReleaseHistory describes a history of a release version
+type ReleaseHistory struct {
+	metav1.TypeMeta `json:",inline"`
+	// +optional
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	// Specification of the desired behavior of the ReleaseHistory
+	// +optional
+	Spec ReleaseHistorySpec `json:"spec,omitempty"`
+}
+
+// ReleaseHistoryList describes an array of ReleaseHistory instances
+type ReleaseHistoryList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+
+	// Items is the list of release histories
+	Items []ReleaseHistory `json:"items"`
+}
