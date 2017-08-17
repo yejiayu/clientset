@@ -35,6 +35,10 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 	// Group=Release, Version=V1alpha1
 	case v1alpha1.SchemeGroupVersion.WithResource("grayreleases"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Release().V1alpha1().GrayReleases().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("releases"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Release().V1alpha1().Releases().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("releasehistories"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Release().V1alpha1().ReleaseHistories().Informer()}, nil
 
 	}
 

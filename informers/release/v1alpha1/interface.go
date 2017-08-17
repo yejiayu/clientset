@@ -14,6 +14,10 @@ import (
 type Interface interface {
 	// GrayReleases returns a GrayReleaseInformer.
 	GrayReleases() GrayReleaseInformer
+	// Releases returns a ReleaseInformer.
+	Releases() ReleaseInformer
+	// ReleaseHistories returns a ReleaseHistoryInformer.
+	ReleaseHistories() ReleaseHistoryInformer
 }
 
 type version struct {
@@ -28,4 +32,14 @@ func New(f internalinterfaces.SharedInformerFactory) Interface {
 // GrayReleases returns a GrayReleaseInformer.
 func (v *version) GrayReleases() GrayReleaseInformer {
 	return &grayReleaseInformer{factory: v.SharedInformerFactory}
+}
+
+// Releases returns a ReleaseInformer.
+func (v *version) Releases() ReleaseInformer {
+	return &releaseInformer{factory: v.SharedInformerFactory}
+}
+
+// ReleaseHistories returns a ReleaseHistoryInformer.
+func (v *version) ReleaseHistories() ReleaseHistoryInformer {
+	return &releaseHistoryInformer{factory: v.SharedInformerFactory}
 }

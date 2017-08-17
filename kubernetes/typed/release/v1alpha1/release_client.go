@@ -14,6 +14,8 @@ import (
 type ReleaseV1alpha1Interface interface {
 	RESTClient() rest.Interface
 	GrayReleasesGetter
+	ReleasesGetter
+	ReleaseHistoriesGetter
 }
 
 // ReleaseV1alpha1Client is used to interact with features provided by the release group.
@@ -23,6 +25,14 @@ type ReleaseV1alpha1Client struct {
 
 func (c *ReleaseV1alpha1Client) GrayReleases(namespace string) GrayReleaseInterface {
 	return newGrayReleases(c, namespace)
+}
+
+func (c *ReleaseV1alpha1Client) Releases(namespace string) ReleaseInterface {
+	return newReleases(c, namespace)
+}
+
+func (c *ReleaseV1alpha1Client) ReleaseHistories(namespace string) ReleaseHistoryInterface {
+	return newReleaseHistories(c, namespace)
 }
 
 // NewForConfig creates a new ReleaseV1alpha1Client for the given config.

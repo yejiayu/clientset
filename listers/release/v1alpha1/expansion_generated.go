@@ -13,3 +13,19 @@ type GrayReleaseListerExpansion interface{}
 // GrayReleaseNamespaceListerExpansion allows custom methods to be added to
 // GrayReleaseNamespaceLister.
 type GrayReleaseNamespaceListerExpansion interface{}
+
+// ReleaseListerExpansion allows custom methods to be added to
+// ReleaseLister.
+type ReleaseListerExpansion interface{}
+
+// ReleaseNamespaceListerExpansion allows custom methods to be added to
+// ReleaseNamespaceLister.
+type ReleaseNamespaceListerExpansion interface{}
+
+// ReleaseHistoryListerExpansion allows custom methods to be added to
+// ReleaseHistoryLister.
+type ReleaseHistoryListerExpansion interface{}
+
+// ReleaseHistoryNamespaceListerExpansion allows custom methods to be added to
+// ReleaseHistoryNamespaceLister.
+type ReleaseHistoryNamespaceListerExpansion interface{}
