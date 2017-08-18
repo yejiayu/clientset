@@ -155,9 +155,14 @@ type ReleaseSpec struct {
 type ReleaseConditionType string
 
 const (
-	ReleaseAvailable   ReleaseConditionType = "Available"
+	// ReleaseAvailable means the resources of release are available and can render service.
+	ReleaseAvailable ReleaseConditionType = "Available"
+	// ReleaseProgressing means release is playing a mutation. It occurs when create/update/rollback
+	// release. If some bad thing was trigger, release transfers to ReleaseFailure.
 	ReleaseProgressing ReleaseConditionType = "Progressing"
-	ReleaseFailure     ReleaseConditionType = "Failure"
+	// ReleaseFailure means some parts of release falled into wrong field. Some parts may work
+	// as usual, but the release can't provide complete service.
+	ReleaseFailure ReleaseConditionType = "Failure"
 )
 
 // ReleaseHistorySpec describes the history info of a release
@@ -176,12 +181,12 @@ type ReleaseCondition struct {
 
 // ResourceCounter is a status counter
 type ResourceCounter struct {
-	// Running is the count of running target
-	Running int `json:"running"`
-	// Mutating is the count of mutating target
-	Mutating int `json:"mutating"`
-	// Wrong is the count of wrong target
-	Wrong int `json:"wrong"`
+	// Available is the count of running target
+	Available int32 `json:"available"`
+	// Progressing is the count of mutating target
+	Progressing int32 `json:"progressing"`
+	// Failure is the count of wrong target
+	Failure int32 `json:"failure"`
 }
 
 // ReleaseDetailStatus
