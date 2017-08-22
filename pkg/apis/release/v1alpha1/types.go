@@ -143,11 +143,11 @@ type ReleaseRollbackConfig struct {
 // ReleaseSpec describes the basic info of a release
 type ReleaseSpec struct {
 	// Description is the description of current release
-	Description string
+	Description string `json:"description,omitempty"`
 	// Template is an archived template data
-	Template []byte `json:"template"`
+	Template []byte `json:"template,omitempty"`
 	// Config is the config for parsing template
-	Config string `json:"config"`
+	Config string `json:"config,omitempty"`
 	// The config this release is rolling back to. Will be cleared after rollback is done.
 	RollbackTo *ReleaseRollbackConfig `json:"rollbackTo,omitempty"`
 }
@@ -192,10 +192,10 @@ type ResourceCounter struct {
 // ReleaseDetailStatus
 type ReleaseDetailStatus struct {
 	// Path is the path which resources from
-	Path string
+	Path string `json:"path,omitempty"`
 	// Resources contains a kind-counter map.
 	// A kind should be a unique name of a group resources.
-	Resources map[string]ResourceCounter
+	Resources map[string]ResourceCounter `json:"resources,omitempty"`
 }
 
 // ReleaseStatus describes the status of a release
