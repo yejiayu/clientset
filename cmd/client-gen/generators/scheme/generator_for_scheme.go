@@ -97,7 +97,9 @@ func (g *GenScheme) GenerateType(c *generator.Context, t *types.Type, w io.Write
 		"announcedAPIGroupFactoryRegistry": c.Universe.Type(types.Name{Package: "k8s.io/apimachinery/pkg/apimachinery/announced", Name: "APIGroupFactoryRegistry"}),
 		"registeredNewOrDie":               c.Universe.Function(types.Name{Package: "k8s.io/apimachinery/pkg/apimachinery/registered", Name: "NewOrDie"}),
 		"registeredAPIRegistrationManager": c.Universe.Type(types.Name{Package: "k8s.io/apimachinery/pkg/apimachinery/registered", Name: "APIRegistrationManager"}),
-		"schemeAddToScheme":                c.Universe.Type(types.Name{Package: "k8s.io/client-go/kubernetes/scheme", Name: "AddToScheme"}),
+		"schemeScheme":                     c.Universe.Type(types.Name{Package: "k8s.io/client-go/kubernetes/scheme", Name: "Scheme"}),
+		"schemeCodecs":                     c.Universe.Type(types.Name{Package: "k8s.io/client-go/kubernetes/scheme", Name: "Codecs"}),
+		"schemeParameterCodec":             c.Universe.Type(types.Name{Package: "k8s.io/client-go/kubernetes/scheme", Name: "ParameterCodec"}),
 	}
 	globals := map[string]string{
 		"Scheme":               "Scheme",
@@ -132,9 +134,9 @@ func (g *GenScheme) GenerateType(c *generator.Context, t *types.Type, w io.Write
 }
 
 var globalsTemplate = `
-var $.Scheme$ = $.runtimeNewScheme|raw$()
-var $.Codecs$ = $.serializerNewCodecFactory|raw$($.Scheme$)
-var $.ParameterCodec$ = $.runtimeNewParameterCodec|raw$($.Scheme$)
+var $.Scheme$ = $.schemeScheme|raw$
+var $.Codecs$ = $.schemeCodecs|raw$
+var $.ParameterCodec$ = $.schemeParameterCodec|raw$
 `
 
 var registryRegistration = `
@@ -158,8 +160,6 @@ var simpleRegistration = `
 
 
 func init() {
-	$.metav1AddToGroupVersion|raw$($.Scheme$, $.schemaGroupVersion|raw${Version: "v1"})
-	$.schemeAddToScheme|raw$($.Scheme$)
 	AddToScheme($.Scheme$)
 }
 
