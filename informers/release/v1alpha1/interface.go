@@ -12,8 +12,6 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
-	// GrayReleases returns a GrayReleaseInformer.
-	GrayReleases() GrayReleaseInformer
 	// Releases returns a ReleaseInformer.
 	Releases() ReleaseInformer
 	// ReleaseHistories returns a ReleaseHistoryInformer.
@@ -27,11 +25,6 @@ type version struct {
 // New returns a new Interface.
 func New(f internalinterfaces.SharedInformerFactory) Interface {
 	return &version{f}
-}
-
-// GrayReleases returns a GrayReleaseInformer.
-func (v *version) GrayReleases() GrayReleaseInformer {
-	return &grayReleaseInformer{factory: v.SharedInformerFactory}
 }
 
 // Releases returns a ReleaseInformer.
