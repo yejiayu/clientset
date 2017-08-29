@@ -27,7 +27,6 @@ type ReleaseSpec struct {
 	RollbackTo *ReleaseRollbackConfig `json:"rollbackTo,omitempty"`
 }
 
-// ReleaseConditionType ...
 type ReleaseConditionType string
 
 const (
@@ -41,7 +40,7 @@ const (
 	ReleaseFailure ReleaseConditionType = "Failure"
 )
 
-// ReleaseCondition describes the history info of a release
+// ReleaseHistorySpec describes the history info of a release
 type ReleaseCondition struct {
 	// Type of release condition.
 	Type ReleaseConditionType `json:"type"`
@@ -65,7 +64,7 @@ type ResourceCounter struct {
 	Failure int32 `json:"failure"`
 }
 
-// ReleaseDetailStatus ...
+// ReleaseDetailStatus
 type ReleaseDetailStatus struct {
 	// Path is the path which resources from
 	Path string `json:"path,omitempty"`
