@@ -195,9 +195,9 @@ const (
 	// CanaryTrasitionNone is the default value of  trasition
 	CanaryTrasitionNone CanaryTrasition = ""
 	// CanaryTrasitionAdopted means that this canary release should be adopted
-	CanaryTrasitionAdopted CanaryTrasition = "ADOPTED"
+	CanaryTrasitionAdopted CanaryTrasition = "Adopted"
 	// CanaryTrasitionDeprecated means that this canary release should be deprecated
-	CanaryTrasitionDeprecated CanaryTrasition = "DEPRECATED"
+	CanaryTrasitionDeprecated CanaryTrasition = "Deprecated"
 )
 
 // CanaryService describes a config of a service from release node
