@@ -12,8 +12,8 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
-	// GrayReleases returns a GrayReleaseInformer.
-	GrayReleases() GrayReleaseInformer
+	// CanaryReleases returns a CanaryReleaseInformer.
+	CanaryReleases() CanaryReleaseInformer
 	// Releases returns a ReleaseInformer.
 	Releases() ReleaseInformer
 	// ReleaseHistories returns a ReleaseHistoryInformer.
@@ -29,9 +29,9 @@ func New(f internalinterfaces.SharedInformerFactory) Interface {
 	return &version{f}
 }
 
-// GrayReleases returns a GrayReleaseInformer.
-func (v *version) GrayReleases() GrayReleaseInformer {
-	return &grayReleaseInformer{factory: v.SharedInformerFactory}
+// CanaryReleases returns a CanaryReleaseInformer.
+func (v *version) CanaryReleases() CanaryReleaseInformer {
+	return &canaryReleaseInformer{factory: v.SharedInformerFactory}
 }
 
 // Releases returns a ReleaseInformer.

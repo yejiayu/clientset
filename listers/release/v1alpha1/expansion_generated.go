@@ -6,13 +6,13 @@ Copyright 2017 caicloud authors. All rights reserved.
 
 package v1alpha1
 
-// GrayReleaseListerExpansion allows custom methods to be added to
-// GrayReleaseLister.
-type GrayReleaseListerExpansion interface{}
+// CanaryReleaseListerExpansion allows custom methods to be added to
+// CanaryReleaseLister.
+type CanaryReleaseListerExpansion interface{}
 
-// GrayReleaseNamespaceListerExpansion allows custom methods to be added to
-// GrayReleaseNamespaceLister.
-type GrayReleaseNamespaceListerExpansion interface{}
+// CanaryReleaseNamespaceListerExpansion allows custom methods to be added to
+// CanaryReleaseNamespaceLister.
+type CanaryReleaseNamespaceListerExpansion interface{}
 
 // ReleaseListerExpansion allows custom methods to be added to
 // ReleaseLister.

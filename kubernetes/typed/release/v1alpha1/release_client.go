@@ -13,7 +13,7 @@ import (
 
 type ReleaseV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	GrayReleasesGetter
+	CanaryReleasesGetter
 	ReleasesGetter
 	ReleaseHistoriesGetter
 }
@@ -23,8 +23,8 @@ type ReleaseV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *ReleaseV1alpha1Client) GrayReleases(namespace string) GrayReleaseInterface {
-	return newGrayReleases(c, namespace)
+func (c *ReleaseV1alpha1Client) CanaryReleases(namespace string) CanaryReleaseInterface {
+	return newCanaryReleases(c, namespace)
 }
 
 func (c *ReleaseV1alpha1Client) Releases(namespace string) ReleaseInterface {

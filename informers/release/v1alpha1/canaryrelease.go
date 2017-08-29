@@ -19,28 +19,28 @@ import (
 	time "time"
 )
 
-// GrayReleaseInformer provides access to a shared informer and lister for
-// GrayReleases.
-type GrayReleaseInformer interface {
+// CanaryReleaseInformer provides access to a shared informer and lister for
+// CanaryReleases.
+type CanaryReleaseInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1alpha1.GrayReleaseLister
+	Lister() v1alpha1.CanaryReleaseLister
 }
 
-type grayReleaseInformer struct {
+type canaryReleaseInformer struct {
 	factory internalinterfaces.SharedInformerFactory
 }
 
-func newGrayReleaseInformer(client kubernetes.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
+func newCanaryReleaseInformer(client kubernetes.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
 	sharedIndexInformer := cache.NewSharedIndexInformer(
 		&cache.ListWatch{
 			ListFunc: func(options v1.ListOptions) (runtime.Object, error) {
-				return client.ReleaseV1alpha1().GrayReleases(v1.NamespaceAll).List(options)
+				return client.ReleaseV1alpha1().CanaryReleases(v1.NamespaceAll).List(options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
-				return client.ReleaseV1alpha1().GrayReleases(v1.NamespaceAll).Watch(options)
+				return client.ReleaseV1alpha1().CanaryReleases(v1.NamespaceAll).Watch(options)
 			},
 		},
-		&release_v1alpha1.GrayRelease{},
+		&release_v1alpha1.CanaryRelease{},
 		resyncPeriod,
 		cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc},
 	)
@@ -48,13 +48,13 @@ func newGrayReleaseInformer(client kubernetes.Interface, resyncPeriod time.Durat
 	return sharedIndexInformer
 }
 
-func (f *grayReleaseInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&release_v1alpha1.GrayRelease{}, func(client client_go_kubernetes.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
+func (f *canaryReleaseInformer) Informer() cache.SharedIndexInformer {
+	return f.factory.InformerFor(&release_v1alpha1.CanaryRelease{}, func(client client_go_kubernetes.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
 		// panic if client is not *kubernetes.Clientset
-		return newGrayReleaseInformer(client.(kubernetes.Interface), resyncPeriod)
+		return newCanaryReleaseInformer(client.(kubernetes.Interface), resyncPeriod)
 	})
 }
 
-func (f *grayReleaseInformer) Lister() v1alpha1.GrayReleaseLister {
-	return v1alpha1.NewGrayReleaseLister(f.Informer().GetIndexer())
+func (f *canaryReleaseInformer) Lister() v1alpha1.CanaryReleaseLister {
+	return v1alpha1.NewCanaryReleaseLister(f.Informer().GetIndexer())
 }
