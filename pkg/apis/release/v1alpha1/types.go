@@ -27,6 +27,7 @@ type ReleaseSpec struct {
 	RollbackTo *ReleaseRollbackConfig `json:"rollbackTo,omitempty"`
 }
 
+// ReleaseConditionType ...
 type ReleaseConditionType string
 
 const (
@@ -40,7 +41,7 @@ const (
 	ReleaseFailure ReleaseConditionType = "Failure"
 )
 
-// ReleaseHistorySpec describes the history info of a release
+// ReleaseCondition describes the history info of a release
 type ReleaseCondition struct {
 	// Type of release condition.
 	Type ReleaseConditionType `json:"type"`
@@ -64,7 +65,7 @@ type ResourceCounter struct {
 	Failure int32 `json:"failure"`
 }
 
-// ReleaseDetailStatus
+// ReleaseDetailStatus ...
 type ReleaseDetailStatus struct {
 	// Path is the path which resources from
 	Path string `json:"path,omitempty"`
@@ -149,4 +150,119 @@ type ReleaseHistoryList struct {
 
 	// Items is the list of release histories
 	Items []ReleaseHistory `json:"items"`
+}
+
+// -----------------------------------------------------------------
+
+// +genclient=true
+// +genclientstatus=false
+
+// CanaryRelease describes a cannary release
+// which providers cannary release for applications.
+type CanaryRelease struct {
+	metav1.TypeMeta `json:",inline"`
+	// +optional
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+	// Specification of the desired behavior of the CanaryReleaseSpec
+	Spec CanaryReleaseSpec `json:"spec,omitempty"`
+	// Most recently observed status of the CanaryReleasepec
+	Status CanaryReleaseStatus `json:"status,omitempty"`
+}
+
+// CanaryReleaseSpec describes the basic info of a canary release
+type CanaryReleaseSpec struct {
+	// Template is an archived template data, aka Chart
+	Template []byte `json:"template"`
+	// Config is the config for parsing template, aka Value
+	Config string `json:"config"`
+	// Version is the version  of release TPR associated with this CanaryRelease
+	Version string `json:"version"`
+	// Release is the name of release TPR associated with this CanaryRelease
+	Release string `json:"release"`
+	// Path is the path of sub app which needs Canary release
+	Path string `json:"path"`
+	// Service is an array of services in current release node
+	Service []CanaryService `json:"services,omitempty"`
+	// Resources specify cpu/memory usage of current canary release
+	Resources apiv1.ResourceRequirements `json:"resources,omitempty"`
+	// Transition means this CanaryRelease needs to be next Transition
+	Transition CanaryTrasition `json:"transition,omitempty"`
+}
+
+// CanaryTrasition specify the next phase this canary release want to be
+type CanaryTrasition string
+
+const (
+	// CanaryTrasitionNone is the default value of  trasition
+	CanaryTrasitionNone CanaryTrasition = ""
+	// CanaryTrasitionAdopted means that this canary release should be adopted
+	CanaryTrasitionAdopted CanaryTrasition = "ADOPTED"
+	// CanaryTrasitionDeprecated means that this canary release should be deprecated
+	CanaryTrasitionDeprecated CanaryTrasition = "DEPRECATED"
+)
+
+// CanaryService describes a config of a service from release node
+type CanaryService struct {
+	// Service is the name of the service
+	Service string `json:"service,omitempty"`
+	// Ports contains an array of port configs
+	Ports []CanaryPort `json:"ports,omitempty"`
+}
+
+// CanaryPort defines protocol and usable config for a serviec port
+type CanaryPort struct {
+	// Port is the port number
+	Port int32 `json:"port,omitempty"`
+	// Protocol is the protocol used by the port
+	Protocol Protocol `json:"protocol,omitempty"`
+	// Config is the port proxy option
+	Config CanaryConfig `json:"config,omitempty"`
+}
+
+// Protocol is the network type for ports
+type Protocol string
+
+const (
+	ProtocolHTTP  Protocol = "HTTP"
+	ProtocolHTTPS Protocol = "HTTPS"
+	ProtocolTCP   Protocol = "TCP"
+	ProtocolUDP   Protocol = "UDP"
+)
+
+// CanaryConfig describes a proxy config for a service port
+type CanaryConfig struct {
+	// Weight is the only proxy config now. The value of weight should be [1,100].
+	Weight *int32 `json:"weight,omitempty"`
+}
+
+// CanaryReleaseStatus describes the current status of a canary release
+type CanaryReleaseStatus struct {
+	// Manifest is the generated kubernetes resources from template
+	Manifest string `json:"manifest,omitempty"`
+	// LastUpdateTime is the last update time of current release
+	LastUpdateTime metav1.Time `json:"lastUpdateTime,omitempty"`
+	// Conditions is an array of current observed release conditions.
+	Conditions []CanaryReleaseCondition `json:"conditions,omitempty"`
+}
+
+// CanaryReleaseCondition describes a condition of the canary release status
+type CanaryReleaseCondition struct {
+	// Type of release condition.
+	Type ReleaseConditionType `json:"type"`
+	// Status of the condition, one of True, False, Unknown.
+	Status apiv1.ConditionStatus `json:"status"`
+	// Last time the condition transit from one status to another.
+	LastTransitionTime metav1.Time `json:"lastTransitionTime,omitempty"`
+	// Reason for the condition's last transition.
+	Reason string `json:"reason,omitempty"`
+	// Human readable message indicating details about last transition.
+	Message string `json:"message,omitempty"`
+}
+
+// CanaryReleaseList describes an array of canary release instances
+type CanaryReleaseList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+
+	Items []CanaryRelease `json:"items"`
 }
