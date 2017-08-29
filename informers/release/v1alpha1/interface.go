@@ -12,6 +12,8 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
+	// CanaryReleases returns a CanaryReleaseInformer.
+	CanaryReleases() CanaryReleaseInformer
 	// Releases returns a ReleaseInformer.
 	Releases() ReleaseInformer
 	// ReleaseHistories returns a ReleaseHistoryInformer.
@@ -25,6 +27,11 @@ type version struct {
 // New returns a new Interface.
 func New(f internalinterfaces.SharedInformerFactory) Interface {
 	return &version{f}
+}
+
+// CanaryReleases returns a CanaryReleaseInformer.
+func (v *version) CanaryReleases() CanaryReleaseInformer {
+	return &canaryReleaseInformer{factory: v.SharedInformerFactory}
 }
 
 // Releases returns a ReleaseInformer.

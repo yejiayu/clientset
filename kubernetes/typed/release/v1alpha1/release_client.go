@@ -13,6 +13,7 @@ import (
 
 type ReleaseV1alpha1Interface interface {
 	RESTClient() rest.Interface
+	CanaryReleasesGetter
 	ReleasesGetter
 	ReleaseHistoriesGetter
 }
@@ -20,6 +21,10 @@ type ReleaseV1alpha1Interface interface {
 // ReleaseV1alpha1Client is used to interact with features provided by the release group.
 type ReleaseV1alpha1Client struct {
 	restClient rest.Interface
+}
+
+func (c *ReleaseV1alpha1Client) CanaryReleases(namespace string) CanaryReleaseInterface {
+	return newCanaryReleases(c, namespace)
 }
 
 func (c *ReleaseV1alpha1Client) Releases(namespace string) ReleaseInterface {
