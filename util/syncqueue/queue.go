@@ -22,7 +22,7 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/zoumo/logdog"
+	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -35,13 +35,16 @@ const (
 )
 
 var (
-	// KeyFunc is the default key function
-	KeyFunc = cache.DeletionHandlingMetaNamespaceKeyFunc
+	// defaultKeyFunc is the default key function
+	defaultKeyFunc = cache.DeletionHandlingMetaNamespaceKeyFunc
 )
 
-type syncHandler func(obj interface{}) error
+// SyncHandler describes the function which will be
+// called for each item in the queue
+type SyncHandler func(obj interface{}) error
 
-type keyFunc func(obj interface{}) (interface{}, error)
+// KeyFunc describes a function that generates a key from a object
+type KeyFunc func(obj interface{}) (interface{}, error)
 
 // PassthroughKeyFunc is a keyFunc which returns the original obj
 func PassthroughKeyFunc(obj interface{}) (interface{}, error) {
@@ -49,19 +52,19 @@ func PassthroughKeyFunc(obj interface{}) (interface{}, error) {
 }
 
 // SyncQueue is a helper for creating a kubernetes controller easily
-// It requires a rate limit workqueue , a syncHandler and an optional key function.
+// It requires a syncHandler and an optional key function.
 // After running the syncQueue, you can call it's Enqueque function to enqueue items.
 // SyncQueue will get key from the items by keyFunc, and add the key to the rate limit workqueue.
 // The worker will be invoked to call the syncHandler.
 type SyncQueue struct {
-	// SyncType is the object type in the queue
-	SyncType reflect.Type
+	// syncType is the object type in the queue
+	syncType reflect.Type
 	// queue is the work queue the worker polls
-	Queue workqueue.RateLimitingInterface
-	// SyncHandler is called for each item in the queue
-	SyncHandler syncHandler
+	queue workqueue.RateLimitingInterface
+	// syncHandler is called for each item in the queue
+	syncHandler SyncHandler
 	// KeyFunc is called to get key from obj
-	keyFunc keyFunc
+	keyFunc KeyFunc
 
 	waitGroup sync.WaitGroup
 
@@ -69,16 +72,21 @@ type SyncQueue struct {
 }
 
 // NewSyncQueue returns a new SyncQueue, enqueue key of obj using default keyFunc
-func NewSyncQueue(syncObject runtime.Object, queue workqueue.RateLimitingInterface, syncHandler syncHandler) *SyncQueue {
-	return NewSyncQueueForKeyFunc(syncObject, queue, syncHandler, nil)
+func NewSyncQueue(syncObject runtime.Object, syncHandler SyncHandler) *SyncQueue {
+	return NewCustomSyncQueue(syncObject, syncHandler, nil)
 }
 
-// NewSyncQueueForKeyFunc returns a new SyncQueue using custom keyFunc
-func NewSyncQueueForKeyFunc(syncObject runtime.Object, queue workqueue.RateLimitingInterface, syncHandler syncHandler, keyFunc keyFunc) *SyncQueue {
+// NewPassthroughSyncQueue returns a new SyncQueue with PassthroughKeyFunc
+func NewPassthroughSyncQueue(syncObject runtime.Object, syncHandler SyncHandler) *SyncQueue {
+	return NewCustomSyncQueue(syncObject, syncHandler, PassthroughKeyFunc)
+}
+
+// NewCustomSyncQueue returns a new SyncQueue using custom keyFunc
+func NewCustomSyncQueue(syncObject runtime.Object, syncHandler SyncHandler, keyFunc KeyFunc) *SyncQueue {
 	sq := &SyncQueue{
-		SyncType:    reflect.TypeOf(syncObject),
-		Queue:       queue,
-		SyncHandler: syncHandler,
+		syncType:    reflect.TypeOf(syncObject),
+		queue:       workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter()),
+		syncHandler: syncHandler,
 		keyFunc:     keyFunc,
 		waitGroup:   sync.WaitGroup{},
 		maxRetries:  maxRetries,
@@ -91,6 +99,26 @@ func NewSyncQueueForKeyFunc(syncObject runtime.Object, queue workqueue.RateLimit
 	return sq
 }
 
+// Run starts n workers to sync
+func (sq *SyncQueue) Run(workers int, stopCh <-chan struct{}) {
+	for i := 0; i < workers; i++ {
+		go wait.Until(sq.worker, time.Second, stopCh)
+	}
+}
+
+// ShutDown shuts down the work queue and waits for the worker to ACK
+func (sq *SyncQueue) ShutDown() {
+	// sq shutdown the queue, then worker can't get key from queue
+	// processNextWorkItem return false, and then waitGroup -1
+	sq.queue.ShutDown()
+	sq.waitGroup.Wait()
+}
+
+// IsShuttingDown returns if the method Shutdown was invoked
+func (sq *SyncQueue) IsShuttingDown() bool {
+	return sq.queue.ShuttingDown()
+}
+
 // SetMaxRetries sets the max retry times of the queue
 func (sq *SyncQueue) SetMaxRetries(max int) {
 	if max > 0 {
@@ -98,11 +126,9 @@ func (sq *SyncQueue) SetMaxRetries(max int) {
 	}
 }
 
-// Run starts n workers to sync
-func (sq *SyncQueue) Run(workers int, stopCh <-chan struct{}) {
-	for i := 0; i < workers; i++ {
-		go wait.Until(sq.worker, time.Second, stopCh)
-	}
+// Queue returns the rate limit work queue
+func (sq *SyncQueue) Queue() workqueue.RateLimitingInterface {
+	return sq.queue
 }
 
 // Enqueue wraps queue.Add
@@ -114,10 +140,10 @@ func (sq *SyncQueue) Enqueue(obj interface{}) {
 
 	key, err := sq.keyFunc(obj)
 	if err != nil {
-		utilruntime.HandleError(fmt.Errorf("Couldn't get key for %v %#v: %v", sq.SyncType, obj, err))
+		utilruntime.HandleError(fmt.Errorf("Couldn't get key for %v %#v: %v", sq.syncType, obj, err))
 		return
 	}
-	sq.Queue.Add(key)
+	sq.queue.Add(key)
 }
 
 // EnqueueRateLimited wraps queue.AddRateLimited. It adds an item to the workqueue
@@ -130,10 +156,10 @@ func (sq *SyncQueue) EnqueueRateLimited(obj interface{}) {
 
 	key, err := sq.keyFunc(obj)
 	if err != nil {
-		utilruntime.HandleError(fmt.Errorf("Couldn't get key for %v %#v: %v", sq.SyncType, obj, err))
+		utilruntime.HandleError(fmt.Errorf("Couldn't get key for %v %#v: %v", sq.syncType, obj, err))
 		return
 	}
-	sq.Queue.AddRateLimited(key)
+	sq.queue.AddRateLimited(key)
 }
 
 // EnqueueAfter wraps queue.AddAfter. It adds an item to the workqueue after the indicated duration has passed
@@ -145,14 +171,14 @@ func (sq *SyncQueue) EnqueueAfter(obj interface{}, after time.Duration) {
 
 	key, err := sq.keyFunc(obj)
 	if err != nil {
-		utilruntime.HandleError(fmt.Errorf("Couldn't get key for %v %#v: %v", sq.SyncType, obj, err))
+		utilruntime.HandleError(fmt.Errorf("Couldn't get key for %v %#v: %v", sq.syncType, obj, err))
 		return
 	}
-	sq.Queue.AddAfter(key, after)
+	sq.queue.AddAfter(key, after)
 }
 
 func (sq *SyncQueue) defaultKeyFunc(obj interface{}) (interface{}, error) {
-	key, err := KeyFunc(obj)
+	key, err := defaultKeyFunc(obj)
 	if err != nil {
 		return "", err
 	}
@@ -172,13 +198,13 @@ func (sq *SyncQueue) worker() {
 
 // ProcessNextWorkItem processes next item in queue by syncHandler
 func (sq *SyncQueue) processNextWorkItem() bool {
-	obj, quit := sq.Queue.Get()
+	obj, quit := sq.queue.Get()
 	if quit {
 		return false
 	}
-	defer sq.Queue.Done(obj)
+	defer sq.queue.Done(obj)
 
-	err := sq.SyncHandler(obj)
+	err := sq.syncHandler(obj)
 	sq.handleSyncError(err, obj)
 
 	return true
@@ -188,38 +214,27 @@ func (sq *SyncQueue) processNextWorkItem() bool {
 func (sq *SyncQueue) handleSyncError(err error, obj interface{}) {
 	if err == nil {
 		// no err
-		sq.Queue.Forget(obj)
+		sq.queue.Forget(obj)
 		return
 	}
 
 	var key interface{}
 
 	// get short key no matter what the keyfunc is
-	key, kerr := KeyFunc(obj)
+	key, kerr := defaultKeyFunc(obj)
 	if kerr != nil {
 		key = obj
 	}
 
-	if sq.Queue.NumRequeues(obj) < sq.maxRetries {
-		log.Warn("Error syncing object, retry", log.Fields{"type": sq.SyncType, "obj": key, "err": err})
-		sq.Queue.AddRateLimited(obj)
+	if sq.queue.NumRequeues(obj) < sq.maxRetries {
+		glog.Warningf("Error syncing object (type: %v, key: %v) retry: %v, err: %v",
+			sq.syncType, key, sq.queue.NumRequeues(obj), err)
+
+		sq.queue.AddRateLimited(obj)
 		return
 	}
 
 	utilruntime.HandleError(err)
-	log.Warn("Dropping object out of queue", log.Fields{"type": sq.SyncType, "obj": key, "err": err})
-	sq.Queue.Forget(obj)
-}
-
-// ShutDown shuts down the work queue and waits for the worker to ACK
-func (sq *SyncQueue) ShutDown() {
-	// sq shutdown the queue, then worker can't get key from queue
-	// processNextWorkItem return false, and then waitGroup -1
-	sq.Queue.ShutDown()
-	sq.waitGroup.Wait()
-}
-
-// IsShuttingDown returns if the method Shutdown was invoked
-func (sq *SyncQueue) IsShuttingDown() bool {
-	return sq.Queue.ShuttingDown()
+	glog.Warningf("Dropping object (type: %v, key: %v) from the queue, err: %v", sq.syncType, key, err)
+	sq.queue.Forget(obj)
 }

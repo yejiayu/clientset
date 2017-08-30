@@ -23,7 +23,6 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/pkg/api/v1"
-	"k8s.io/client-go/util/workqueue"
 )
 
 func TestSyncQueue_Enqueue(t *testing.T) {
@@ -34,8 +33,7 @@ func TestSyncQueue_Enqueue(t *testing.T) {
 		return nil
 	}
 
-	q := workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter())
-	queue := NewSyncQueueForKeyFunc(&v1.Pod{}, q, syncPods, PassthroughKeyFunc)
+	queue := NewSyncQueueForKeyFunc(&v1.Pod{}, syncPods, PassthroughKeyFunc)
 	stopCh := make(chan struct{})
 	defer func() {
 		close(stopCh)
@@ -78,8 +76,7 @@ func TestSyncQueue_EnqueueError(t *testing.T) {
 		}
 		return nil
 	}
-	q := workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter())
-	queue := NewSyncQueueForKeyFunc(&v1.Pod{}, q, syncError, PassthroughKeyFunc)
+	queue := NewSyncQueueForKeyFunc(&v1.Pod{}, syncError, PassthroughKeyFunc)
 	queue.SetMaxRetries(1)
 	stopCh := make(chan struct{})
 	defer func() {
