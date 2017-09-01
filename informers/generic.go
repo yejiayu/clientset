@@ -7,7 +7,8 @@ Copyright 2017 caicloud authors. All rights reserved.
 package informers
 
 import (
-	v1alpha1 "github.com/caicloud/clientset/pkg/apis/release/v1alpha1"
+	v1alpha1 "github.com/caicloud/clientset/pkg/apis/config/v1alpha1"
+	release_v1alpha1 "github.com/caicloud/clientset/pkg/apis/release/v1alpha1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	informers "k8s.io/client-go/informers"
 	cache "k8s.io/client-go/tools/cache"
@@ -32,12 +33,16 @@ func (f *genericInformer) Lister() cache.GenericLister {
 // TODO extend this to unknown resources with a client pool
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (informers.GenericInformer, error) {
 	switch resource {
-	// Group=Release, Version=V1alpha1
-	case v1alpha1.SchemeGroupVersion.WithResource("canaryreleases"):
+	// Group=Config, Version=V1alpha1
+	case v1alpha1.SchemeGroupVersion.WithResource("configclaims"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Config().V1alpha1().ConfigClaims().Informer()}, nil
+
+		// Group=Release, Version=V1alpha1
+	case release_v1alpha1.SchemeGroupVersion.WithResource("canaryreleases"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Release().V1alpha1().CanaryReleases().Informer()}, nil
-	case v1alpha1.SchemeGroupVersion.WithResource("releases"):
+	case release_v1alpha1.SchemeGroupVersion.WithResource("releases"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Release().V1alpha1().Releases().Informer()}, nil
-	case v1alpha1.SchemeGroupVersion.WithResource("releasehistories"):
+	case release_v1alpha1.SchemeGroupVersion.WithResource("releasehistories"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Release().V1alpha1().ReleaseHistories().Informer()}, nil
 
 	}

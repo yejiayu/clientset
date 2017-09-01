@@ -7,6 +7,7 @@ set -e
 # Add your packages here
 PKGS=(
   release/v1alpha1
+  config/v1alpha1
 )
 
 CLIENT_PATH=github.com/caicloud/clientset
@@ -17,7 +18,7 @@ do
 	ALL_PKGS="$CLIENT_APIS/$path "$ALL_PKGS
 done
 
-function join { 
+function join {
 	local IFS="$1"
    	shift
    	result="$*"
