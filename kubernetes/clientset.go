@@ -5,6 +5,7 @@ Copyright 2017 caicloud authors. All rights reserved.
 package kubernetes
 
 import (
+	configv1alpha1 "github.com/caicloud/clientset/kubernetes/typed/config/v1alpha1"
 	releasev1alpha1 "github.com/caicloud/clientset/kubernetes/typed/release/v1alpha1"
 	glog "github.com/golang/glog"
 	kubernetes "k8s.io/client-go/kubernetes"
@@ -14,6 +15,9 @@ import (
 
 type Interface interface {
 	kubernetes.Interface
+	ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface
+	// Deprecated: please explicitly pick a version if possible.
+	Config() configv1alpha1.ConfigV1alpha1Interface
 	ReleaseV1alpha1() releasev1alpha1.ReleaseV1alpha1Interface
 	// Deprecated: please explicitly pick a version if possible.
 	Release() releasev1alpha1.ReleaseV1alpha1Interface
@@ -23,7 +27,25 @@ type Interface interface {
 // version included in a Clientset.
 type Clientset struct {
 	*kubernetes.Clientset
+	*configv1alpha1.ConfigV1alpha1Client
 	*releasev1alpha1.ReleaseV1alpha1Client
+}
+
+// ConfigV1alpha1 retrieves the ConfigV1alpha1Client
+func (c *Clientset) ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface {
+	if c == nil {
+		return nil
+	}
+	return c.ConfigV1alpha1Client
+}
+
+// Deprecated: Config retrieves the default version of ConfigClient.
+// Please explicitly pick a version.
+func (c *Clientset) Config() configv1alpha1.ConfigV1alpha1Interface {
+	if c == nil {
+		return nil
+	}
+	return c.ConfigV1alpha1Client
 }
 
 // ReleaseV1alpha1 retrieves the ReleaseV1alpha1Client
@@ -51,6 +73,10 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 	}
 	var cs Clientset
 	var err error
+	cs.ConfigV1alpha1Client, err = configv1alpha1.NewForConfig(&configShallowCopy)
+	if err != nil {
+		return nil, err
+	}
 	cs.ReleaseV1alpha1Client, err = releasev1alpha1.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
@@ -68,6 +94,7 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 // panics if there is an error in the config.
 func NewForConfigOrDie(c *rest.Config) *Clientset {
 	var cs Clientset
+	cs.ConfigV1alpha1Client = configv1alpha1.NewForConfigOrDie(c)
 	cs.ReleaseV1alpha1Client = releasev1alpha1.NewForConfigOrDie(c)
 
 	cs.Clientset = kubernetes.NewForConfigOrDie(c)
@@ -77,6 +104,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 // New creates a new Clientset for the given RESTClient.
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
+	cs.ConfigV1alpha1Client = configv1alpha1.New(c)
 	cs.ReleaseV1alpha1Client = releasev1alpha1.New(c)
 
 	cs.Clientset = kubernetes.New(c)
