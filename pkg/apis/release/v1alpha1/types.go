@@ -175,7 +175,7 @@ type CanaryReleaseSpec struct {
 	// Config is the config for parsing template, aka Value
 	Config string `json:"config"`
 	// Version is the version  of release TPR associated with this CanaryRelease
-	Version string `json:"version"`
+	Version int32 `json:"version"`
 	// Release is the name of release TPR associated with this CanaryRelease
 	Release string `json:"release"`
 	// Path is the path of sub app which needs Canary release
