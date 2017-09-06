@@ -49,3 +49,45 @@ type ConfigClaimList struct {
 	// Items is the list of ConfigClaim
 	Items []ConfigClaim `json:"items"`
 }
+
+// +genclient=true
+// +genclientstatus=false
+
+// ConfigReference describes the config reference list.
+type ConfigReference struct {
+	metav1.TypeMeta `json:",inline"`
+	// +optional
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+	// Specification of the desired behavior of the Release
+	// +optional
+	Spec ConfigReferenceSpec `json:"spec,omitempty"`
+}
+
+// ConfigReferenceSpec describes the config reference list.
+type ConfigReferenceSpec struct {
+	Refs []*Reference `json:"refs,omitempty"`
+}
+
+// Reference describes the config reference.
+type Reference struct {
+	Name       string       `json:"name"`
+	Kind       string       `json:"kind"`
+	APIVersion string       `json:"apiVersion"`
+	Config     []Data       `json:"config,omitempty"`
+	Children   []*Reference `json:"children,omitempty"`
+}
+
+// Data describes the config info.
+type Data struct {
+	Name string   `json:"name"`
+	Keys []string `json:"keys"`
+}
+
+// ConfigReferenceList describes an array of ConfigReference instances.
+type ConfigReferenceList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+
+	// Items is the list of ConfigClaim
+	Items []ConfigReference `json:"items"`
+}
