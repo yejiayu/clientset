@@ -51,7 +51,7 @@ type ConfigClaimList struct {
 }
 
 // +genclient=true
-// +genclientstatus=false
+// +genclientstatus=true
 
 // ConfigReference describes the config reference list.
 type ConfigReference struct {
@@ -60,11 +60,11 @@ type ConfigReference struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 	// Specification of the desired behavior of the Release
 	// +optional
-	Spec ConfigReferenceSpec `json:"spec,omitempty"`
+	Status ConfigReferenceStatus `json:"spec,omitempty"`
 }
 
-// ConfigReferenceSpec describes the config reference list.
-type ConfigReferenceSpec struct {
+// ConfigReferenceStatus describes the config reference list.
+type ConfigReferenceStatus struct {
 	Refs []*Reference `json:"refs,omitempty"`
 }
 

@@ -23,6 +23,7 @@ type ConfigReferencesGetter interface {
 type ConfigReferenceInterface interface {
 	Create(*v1alpha1.ConfigReference) (*v1alpha1.ConfigReference, error)
 	Update(*v1alpha1.ConfigReference) (*v1alpha1.ConfigReference, error)
+	UpdateStatus(*v1alpha1.ConfigReference) (*v1alpha1.ConfigReference, error)
 	Delete(name string, options *v1.DeleteOptions) error
 	DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error
 	Get(name string, options v1.GetOptions) (*v1alpha1.ConfigReference, error)
@@ -65,6 +66,22 @@ func (c *configReferences) Update(configReference *v1alpha1.ConfigReference) (re
 		Namespace(c.ns).
 		Resource("configreferences").
 		Name(configReference.Name).
+		Body(configReference).
+		Do().
+		Into(result)
+	return
+}
+
+// UpdateStatus was generated because the type contains a Status member.
+// Add a +genclientstatus=false comment above the type to avoid generating UpdateStatus().
+
+func (c *configReferences) UpdateStatus(configReference *v1alpha1.ConfigReference) (result *v1alpha1.ConfigReference, err error) {
+	result = &v1alpha1.ConfigReference{}
+	err = c.client.Put().
+		Namespace(c.ns).
+		Resource("configreferences").
+		Name(configReference.Name).
+		SubResource("status").
 		Body(configReference).
 		Do().
 		Into(result)
