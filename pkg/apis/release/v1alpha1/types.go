@@ -40,7 +40,7 @@ const (
 	ReleaseFailure ReleaseConditionType = "Failure"
 )
 
-// ReleaseHistorySpec describes the history info of a release
+// ReleaseCondition describes the conditions of a release
 type ReleaseCondition struct {
 	// Type of release condition.
 	Type ReleaseConditionType `json:"type"`
@@ -64,7 +64,7 @@ type ResourceCounter struct {
 	Failure int32 `json:"failure"`
 }
 
-// ReleaseDetailStatus
+// ReleaseDetailStatus describes the status of a part of a release.
 type ReleaseDetailStatus struct {
 	// Path is the path which resources from
 	Path string `json:"path,omitempty"`
@@ -81,8 +81,9 @@ type ReleaseStatus struct {
 	Manifest string `json:"manifest,omitempty"`
 	// LastUpdateTime is the last update time of current release
 	LastUpdateTime metav1.Time `json:"lastUpdateTime,omitempty"`
-	// Details contains all resources status of current release
-	Details []ReleaseDetailStatus `json:"details,omitempty"`
+	// Details contains all resources status of current release. The key
+	// should be a unique path.
+	Details map[string]ReleaseDetailStatus `json:"details,omitempty"`
 	// Conditions is an array of current observed release conditions.
 	Conditions []ReleaseCondition `json:"conditions,omitempty"`
 }
