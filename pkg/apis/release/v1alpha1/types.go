@@ -177,7 +177,9 @@ type CanaryReleaseSpec struct {
 	Version int32 `json:"version"`
 	// Path is the path of sub app which needs Canary release
 	Path string `json:"path"`
-	// Config is the config for parsing template, aka Value
+	// Substitute is the replacement of sub chart's name
+	Substitute string `json:"substitute"`
+	// Config is the sub config for parsing template, aka Value
 	Config string `json:"config"`
 	// Service is an array of services in current release node
 	Service []CanaryService `json:"services,omitempty"`
@@ -237,6 +239,8 @@ type CanaryConfig struct {
 type CanaryReleaseStatus struct {
 	// Manifest is the generated kubernetes resources from template
 	Manifest string `json:"manifest,omitempty"`
+	// Template is the archived template data
+	Template []byte `json:"template,omitempty"`
 	// LastUpdateTime is the last update time of current release
 	LastUpdateTime metav1.Time `json:"lastUpdateTime,omitempty"`
 	// Conditions is an array of current observed release conditions.
