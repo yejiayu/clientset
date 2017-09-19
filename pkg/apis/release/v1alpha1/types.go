@@ -237,6 +237,9 @@ type CanaryConfig struct {
 
 // CanaryReleaseStatus describes the current status of a canary release
 type CanaryReleaseStatus struct {
+	// Phase is the current phase of canary release.
+	// It will be set after the transition in spec successfully.
+	Phase CanaryTrasition `json:"phase,omitempty"`
 	// Manifest is the generated kubernetes resources from template
 	Manifest string `json:"manifest,omitempty"`
 	// Template is the archived template data
