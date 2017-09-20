@@ -177,15 +177,13 @@ type CanaryReleaseSpec struct {
 	Version int32 `json:"version"`
 	// Path is the path of sub app which needs Canary release
 	Path string `json:"path"`
-	// Substitute is the replacement of sub chart's name
-	Substitute string `json:"substitute"`
 	// Config is the sub config for parsing template, aka Value
 	Config string `json:"config"`
 	// Service is an array of services in current release node
 	Service []CanaryService `json:"services,omitempty"`
 	// Resources specify cpu/memory usage of current canary release
 	Resources apiv1.ResourceRequirements `json:"resources,omitempty"`
-	// Transition means this CanaryRelease needs to be next Transition
+	// Transition is the next phase this CanaryRelease needs to transformed into
 	Transition CanaryTrasition `json:"transition,omitempty"`
 }
 
@@ -242,8 +240,6 @@ type CanaryReleaseStatus struct {
 	Phase CanaryTrasition `json:"phase,omitempty"`
 	// Manifest is the generated kubernetes resources from template
 	Manifest string `json:"manifest,omitempty"`
-	// Template is the archived template data
-	Template []byte `json:"template,omitempty"`
 	// LastUpdateTime is the last update time of current release
 	LastUpdateTime metav1.Time `json:"lastUpdateTime,omitempty"`
 	// Conditions is an array of current observed release conditions.
