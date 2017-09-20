@@ -53,6 +53,7 @@ type SyncQueue struct {
 	waitGroup sync.WaitGroup
 
 	maxRetries int
+	stopCh     chan struct{}
 }
 
 // NewSyncQueue returns a new SyncQueue, enqueue key of obj using default keyFunc
@@ -74,6 +75,7 @@ func NewCustomSyncQueue(syncObject runtime.Object, syncHandler SyncHandler, keyF
 		keyFunc:     keyFunc,
 		waitGroup:   sync.WaitGroup{},
 		maxRetries:  maxRetries,
+		stopCh:      make(chan struct{}),
 	}
 
 	if keyFunc == nil {
@@ -84,14 +86,15 @@ func NewCustomSyncQueue(syncObject runtime.Object, syncHandler SyncHandler, keyF
 }
 
 // Run starts n workers to sync
-func (sq *SyncQueue) Run(workers int, stopCh <-chan struct{}) {
+func (sq *SyncQueue) Run(workers int) {
 	for i := 0; i < workers; i++ {
-		go wait.Until(sq.worker, time.Second, stopCh)
+		go wait.Until(sq.worker, time.Second, sq.stopCh)
 	}
 }
 
 // ShutDown shuts down the work queue and waits for the worker to ACK
 func (sq *SyncQueue) ShutDown() {
+	close(sq.stopCh)
 	// sq shutdown the queue, then worker can't get key from queue
 	// processNextWorkItem return false, and then waitGroup -1
 	sq.queue.ShutDown()

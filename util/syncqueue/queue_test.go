@@ -17,13 +17,11 @@ func TestSyncQueue_Enqueue(t *testing.T) {
 		return nil
 	}
 
-	queue := NewSyncQueueForKeyFunc(&v1.Pod{}, syncPods, PassthroughKeyFunc)
-	stopCh := make(chan struct{})
+	queue := NewCustomSyncQueue(&v1.Pod{}, syncPods, PassthroughKeyFunc)
+	queue.Run(1)
 	defer func() {
-		close(stopCh)
 		queue.ShutDown()
 	}()
-	queue.Run(1, stopCh)
 
 	tests := []struct {
 		podName string
@@ -60,14 +58,12 @@ func TestSyncQueue_EnqueueError(t *testing.T) {
 		}
 		return nil
 	}
-	queue := NewSyncQueueForKeyFunc(&v1.Pod{}, syncError, PassthroughKeyFunc)
+	queue := NewCustomSyncQueue(&v1.Pod{}, syncError, PassthroughKeyFunc)
 	queue.SetMaxRetries(1)
-	stopCh := make(chan struct{})
+	queue.Run(1)
 	defer func() {
-		close(stopCh)
 		queue.ShutDown()
 	}()
-	queue.Run(1, stopCh)
 
 	tests := []struct {
 		podName string
