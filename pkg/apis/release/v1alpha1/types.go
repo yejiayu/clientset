@@ -258,6 +258,8 @@ const (
 	// CanaryReleaseFailure means some parts of cananry release falled into wrong field. Some parts may work
 	// as usual, but the canary release can't provide complete service.
 	CanaryReleaseFailure CanaryReleaseConditionType = "Failure"
+	// CanaryReleaseArchived means this canary release has been archived
+	CanaryReleaseArchived CanaryReleaseConditionType = "Archived"
 )
 
 // CanaryReleaseCondition describes a condition of the canary release status
