@@ -246,10 +246,24 @@ type CanaryReleaseStatus struct {
 	Conditions []CanaryReleaseCondition `json:"conditions,omitempty"`
 }
 
+// CanaryReleaseConditionType describes the type of condition
+type CanaryReleaseConditionType string
+
+const (
+	// CanaryReleaseAvailable means the resources of release are available and can render service.
+	CanaryReleaseAvailable CanaryReleaseConditionType = "Available"
+	// CanaryReleaseProgressing means release is playing a mutation. It occurs when create/update
+	// a canary release. If some bad thing occurs, canary release transfers to ReleaseFailure.
+	CanaryReleaseProgressing CanaryReleaseConditionType = "Progressing"
+	// CanaryReleaseFailure means some parts of cananry release falled into wrong field. Some parts may work
+	// as usual, but the canary release can't provide complete service.
+	CanaryReleaseFailure CanaryReleaseConditionType = "Failure"
+)
+
 // CanaryReleaseCondition describes a condition of the canary release status
 type CanaryReleaseCondition struct {
 	// Type of release condition.
-	Type ReleaseConditionType `json:"type"`
+	Type CanaryReleaseConditionType `json:"type"`
 	// Status of the condition, one of True, False, Unknown.
 	Status apiv1.ConditionStatus `json:"status"`
 	// Last time the condition transit from one status to another.
