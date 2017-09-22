@@ -8,6 +8,7 @@ set -e
 PKGS=(
   release/v1alpha1
   config/v1alpha1
+  apiextensions/v1beta1
 )
 
 CLIENT_PATH=github.com/caicloud/clientset
