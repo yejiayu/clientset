@@ -9,6 +9,7 @@ package informers
 import (
 	v1beta1 "github.com/caicloud/clientset/pkg/apis/apiextensions/v1beta1"
 	v1alpha1 "github.com/caicloud/clientset/pkg/apis/config/v1alpha1"
+	v1alpha2 "github.com/caicloud/clientset/pkg/apis/loadbalance/v1alpha2"
 	release_v1alpha1 "github.com/caicloud/clientset/pkg/apis/release/v1alpha1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	informers "k8s.io/client-go/informers"
@@ -43,6 +44,10 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Config().V1alpha1().ConfigClaims().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("configreferences"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Config().V1alpha1().ConfigReferences().Informer()}, nil
+
+		// Group=Loadbalance, Version=V1alpha2
+	case v1alpha2.SchemeGroupVersion.WithResource("loadbalancers"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Loadbalance().V1alpha2().LoadBalancers().Informer()}, nil
 
 		// Group=Release, Version=V1alpha1
 	case release_v1alpha1.SchemeGroupVersion.WithResource("canaryreleases"):
