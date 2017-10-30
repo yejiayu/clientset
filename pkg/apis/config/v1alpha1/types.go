@@ -72,6 +72,7 @@ type ConfigReferenceStatus struct {
 type Reference struct {
 	Name       string       `json:"name"`
 	Kind       string       `json:"kind"`
+	APIGroup   string       `json:"apiGroup"`
 	APIVersion string       `json:"apiVersion"`
 	Keys       []string     `json:"keys,omitempty"`
 	Children   []*Reference `json:"children,omitempty"`
