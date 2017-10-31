@@ -15,17 +15,17 @@ import (
 // LoadBalancerListerExpansion allows custom methods to be added to
 // LoadBalancerLister.
 type LoadBalancerListerExpansion interface {
-	GetLoadBalancersForControllee(obj interface{}) (*loadbalanceapi.LoadBalancer, error)
+	GetLoadBalancerForControllee(obj interface{}) (*loadbalanceapi.LoadBalancer, error)
 }
 
 // LoadBalancerNamespaceListerExpansion allows custom methods to be added to
 // LoadBalancerNamespaceLister.
 type LoadBalancerNamespaceListerExpansion interface{}
 
-// GetLoadBalancersForControllee
+// GetLoadBalancerForControllee
 // 1. try to get loadbalancer from OwnerReferences
 // 2. try to find created-by key in controllee's labels, parse the value to find namesapce and name
-func (s *loadBalancerLister) GetLoadBalancersForControllee(obj interface{}) (*loadbalanceapi.LoadBalancer, error) {
+func (s *loadBalancerLister) GetLoadBalancerForControllee(obj interface{}) (*loadbalanceapi.LoadBalancer, error) {
 	version := "v1alpha2"
 	accessor, err := meta.Accessor(obj)
 	if err != nil {
