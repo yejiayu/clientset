@@ -14,6 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// +k8s:deepcopy-gen=package
-// +groupName=resource.caicloud.io
+// +k8s:deepcopy-gen=package,register
+// +groupName=release.caicloud.io
 package v1alpha1

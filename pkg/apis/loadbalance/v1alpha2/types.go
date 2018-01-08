@@ -5,9 +5,11 @@ Copyright 2017 caicloud authors. All rights reserved.
 package v1alpha2
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // LoadBalancerList is a collection of LoadBalancer
 type LoadBalancerList struct {
@@ -18,6 +20,7 @@ type LoadBalancerList struct {
 
 // +genclient=true
 // +genclientstatus=false
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // LoadBalancer describes a LoadBalancer which provides Load Balancing for applications
 // LoadBalancer contains a proxy and multiple providers to load balance
