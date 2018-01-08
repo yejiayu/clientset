@@ -5,9 +5,11 @@ Copyright 2017 caicloud authors. All rights reserved.
 package v1alpha2
 
 import (
+	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	apiv1 "k8s.io/client-go/pkg/api/v1"
 )
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // LoadBalancerList is a collection of LoadBalancer
 type LoadBalancerList struct {
@@ -18,6 +20,7 @@ type LoadBalancerList struct {
 
 // +genclient=true
 // +genclientstatus=false
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // LoadBalancer describes a LoadBalancer which provides Load Balancing for applications
 // LoadBalancer contains a proxy and multiple providers to load balance
@@ -63,7 +66,7 @@ type NodesSpec struct {
 	// +optional
 	Names []string `json:"names,omitempty"`
 	// +optional
-	Effect *apiv1.TaintEffect `json:"taintEffect,omitempty"`
+	Effect *v1.TaintEffect `json:"taintEffect,omitempty"`
 }
 
 // ProxySpec is a description of a proxy
@@ -74,7 +77,7 @@ type ProxySpec struct {
 	// Compute Resources required by this container.
 	// Cannot be updated.
 	// +optional
-	Resources apiv1.ResourceRequirements `json:"resources,omitempty"`
+	Resources v1.ResourceRequirements `json:"resources,omitempty"`
 }
 
 // ProxyType ...

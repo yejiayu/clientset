@@ -15,11 +15,14 @@ PKGS=(
 
 CLIENT_PATH=github.com/caicloud/clientset
 CLIENT_APIS=$CLIENT_PATH/pkg/apis
+GO_HEADER_FILE="../hack/boilerplate/boilerplate.go.txt"
 
 for path in "${PKGS[@]}"
 do
 	ALL_PKGS="$CLIENT_APIS/$path "$ALL_PKGS
 done
+
+function codegen::join() { local IFS="$1"; shift; echo "$*"; }
 
 function join {
 	local IFS="$1"
@@ -37,6 +40,11 @@ echo "PKGS: $PKGS"
 echo "FULL PKGS: $FULL_PKGS"
 
 cd $(dirname ${BASH_SOURCE[0]})
+
+${GOPATH}/bin/deepcopy-gen --input-dirs $(codegen::join , "$FULL_PKGS") \
+-O zz_generated.deepcopy --bounding-dirs "$CLIENT_APIS" --go-header-file "$GO_HEADER_FILE"
+
+echo "Generated deepcopy funcs"
 
 go run ./client-gen/main.go \
   -n kubernetes \
