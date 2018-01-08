@@ -6,7 +6,7 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	apiv1 "k8s.io/client-go/pkg/api/v1"
+	"k8s.io/api/core/v1"
 )
 
 // ReleaseRollbackConfig describes the rollback config of a release
@@ -45,7 +45,7 @@ type ReleaseCondition struct {
 	// Type of release condition.
 	Type ReleaseConditionType `json:"type"`
 	// Status of the condition, one of True, False, Unknown.
-	Status apiv1.ConditionStatus `json:"status"`
+	Status v1.ConditionStatus `json:"status"`
 	// Last time the condition transit from one status to another.
 	LastTransitionTime metav1.Time `json:"lastTransitionTime,omitempty"`
 	// Reason for the condition's last transition.
@@ -182,7 +182,7 @@ type CanaryReleaseSpec struct {
 	// Service is an array of services in current release node
 	Service []CanaryService `json:"services,omitempty"`
 	// Resources specify cpu/memory usage of current canary release
-	Resources apiv1.ResourceRequirements `json:"resources,omitempty"`
+	Resources v1.ResourceRequirements `json:"resources,omitempty"`
 	// Transition is the next phase this CanaryRelease needs to transformed into
 	Transition CanaryTrasition `json:"transition,omitempty"`
 }
@@ -269,7 +269,7 @@ type CanaryReleaseCondition struct {
 	// Type of release condition.
 	Type CanaryReleaseConditionType `json:"type"`
 	// Status of the condition, one of True, False, Unknown.
-	Status apiv1.ConditionStatus `json:"status"`
+	Status v1.ConditionStatus `json:"status"`
 	// Last time the condition transit from one status to another.
 	LastTransitionTime metav1.Time `json:"lastTransitionTime,omitempty"`
 	// Reason for the condition's last transition.
@@ -295,7 +295,7 @@ type PodStatus struct {
 	ReadyContainers int32          `json:"readyContainers"`
 	TotalContainers int32          `json:"totalContainers"`
 	NodeName        string         `json:"nodeName"`
-	Phase           apiv1.PodPhase `json:"phase"`
+	Phase           v1.PodPhase `json:"phase"`
 	Reason          string         `json:"reason"`
 	Message         string         `json:"message,omitempty"`
 }

@@ -6,7 +6,7 @@ package v1alpha2
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	apiv1 "k8s.io/client-go/pkg/api/v1"
+	"k8s.io/api/core/v1"
 )
 
 // LoadBalancerList is a collection of LoadBalancer
@@ -63,7 +63,7 @@ type NodesSpec struct {
 	// +optional
 	Names []string `json:"names,omitempty"`
 	// +optional
-	Effect *apiv1.TaintEffect `json:"taintEffect,omitempty"`
+	Effect *v1.TaintEffect `json:"taintEffect,omitempty"`
 }
 
 // ProxySpec is a description of a proxy
@@ -74,7 +74,7 @@ type ProxySpec struct {
 	// Compute Resources required by this container.
 	// Cannot be updated.
 	// +optional
-	Resources apiv1.ResourceRequirements `json:"resources,omitempty"`
+	Resources v1.ResourceRequirements `json:"resources,omitempty"`
 }
 
 // ProxyType ...
