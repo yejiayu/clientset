@@ -132,6 +132,10 @@ func JudgePodStatus(pod *v1.Pod) PodStatus {
 		ready = true
 	}
 
+	if phase == v1.PodRunning && !ready && reason != "" {
+		phase = PodError
+	}
+
 	if pod.DeletionTimestamp != nil {
 		ready = false
 		if pod.Status.Reason == NodeUnreachablePodReason {
