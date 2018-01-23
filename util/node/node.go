@@ -51,6 +51,9 @@ func getIPFromSource(keys []string, source map[string]string) net.IP {
 	}
 
 	for _, key := range keys {
+		if key == "" {
+			continue
+		}
 		v, ok := source[key]
 		if !ok {
 			// not found, try next
