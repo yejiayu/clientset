@@ -12,8 +12,12 @@ const (
 	// on the node it is (was) running.
 	// copy from k8s.io/kubernetes/pkg/util/node
 	NodeUnreachablePodReason = "NodeLost"
-	// PodInitializing means pod's initContainers are not finished
+	// PodInitializing means:
+	//   - some of pod's initContainers are not finished
+	//   - some of pod's containers are not running
 	PodInitializing v1.PodPhase = "Initializing"
+	// PodTerminating means that pod is in terminating
+	PodTerminating v1.PodPhase = "Terminating"
 	// PodError means that:
 	//   - When pod is initializing, at least one init container is terminated without code 0.
 	//   - When pod is terminating, at least one container is terminated without code 0.
@@ -111,6 +115,7 @@ func JudgePodStatus(pod *v1.Pod) PodStatus {
 				message = container.State.Waiting.Message
 			} else if container.State.Terminated != nil {
 				if container.State.Terminated.ExitCode != 0 {
+					// if container's exit code != 0, we think that pod is in error phase
 					phase = PodError
 				}
 				reason = fmt.Sprintf("ExitCode:%d", container.State.Terminated.ExitCode)
@@ -128,20 +133,32 @@ func JudgePodStatus(pod *v1.Pod) PodStatus {
 		}
 	}
 
+	// all containers are ready and container number > 0
+	// we think pod is ready
 	if readyContainers == totalContainers && readyContainers > 0 {
 		ready = true
 	}
 
-	if phase == v1.PodRunning && !ready && reason != "" {
-		phase = PodError
-	}
+	if pod.DeletionTimestamp == nil {
+		// kubernetes tells us the pod is running, but we recognize
+		// that pod is not ready, and no other errors are found above
+		// we think the pod is Initializing
+		if phase == v1.PodRunning && !ready {
+			phase = PodInitializing
+		}
+	} else {
+		// DeletionTimestamp != nil means the pod may be in Terminating
 
-	if pod.DeletionTimestamp != nil {
+		// In this phase, pod is not ready
 		ready = false
 		if pod.Status.Reason == NodeUnreachablePodReason {
 			phase = v1.PodUnknown
 			reason = "Unknown"
 		} else {
+			if phase == v1.PodRunning {
+				// only if phase is Running, change phase to terminating
+				phase = PodTerminating
+			}
 			reason = "Terminating"
 		}
 	}
