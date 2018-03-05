@@ -11,6 +11,7 @@ PKGS=(
   apiextensions/v1beta1
   loadbalance/v1alpha2
   resource/v1alpha1
+  resource/v1beta1
 )
 
 CLIENT_PATH=github.com/caicloud/clientset
