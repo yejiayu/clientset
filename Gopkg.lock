@@ -140,6 +140,12 @@
   version = "v2.0.1"
 
 [[projects]]
+  name = "github.com/spaolacci/murmur3"
+  packages = ["."]
+  revision = "9f5d223c60793748f04a9d5b4b4eacddfc1f755d"
+  version = "v1.1"
+
+[[projects]]
   name = "github.com/spf13/pflag"
   packages = ["."]
   revision = "e57e3eeb33f795204c1ca35f56c44f83227c6e66"
@@ -203,6 +209,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3a8a76e6e905d9b45178423be3e40a271aef2a4d5e88ce0b6b189889b42c747a"
+  inputs-digest = "83a8cb7ce328a0883254c6f07e3079c9e7601b5068b97f0e4a42d4549f6f4913"
   solver-name = "gps-cdcl"
   solver-version = 1
